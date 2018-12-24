@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Блюдо{% endblock %}
+{% block content %}
+    {{ food.name }} ({{ food.price }})<br>
+    <img src="{{ food.photo.url }}" alt="Картинка еды" style="width: 25%; height: auto" >
+    <br>
+    {{ food.description }}
+    <ul>
+        <li>
+            <a href="{% url 'food_delete' food.pk %}">Удалить</a>
+        </li>
+        <li>
+            <a href="{% url 'food_update' food.pk %}">Редактировать</a>
+        </li>
+    </ul>
+
+{% endblock %}

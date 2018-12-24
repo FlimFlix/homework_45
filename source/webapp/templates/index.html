@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+    {% for food in food_list %}
+        <div class="card m-2 d-flex d-inline-flex" style="width: 18rem;">
+          <img class="card-img-top" src="{{ food.photo.url }}" alt="*">
+          <div class="card-body">
+            <a href="{% url 'food_detail' food.pk %}" class="card-text">{{ food.name }} ({{ food.price }})</a>
+          </div>
+        </div>
+    {% endfor %}
+{% endblock %}
+

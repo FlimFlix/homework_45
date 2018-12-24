@@ -15,7 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls.static import static
+from django.conf import settings
+
+
+from webapp.views import FoodCreateView, FoodDetailView, FoodListView, FoodDeleteView, FoodUpdateView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', FoodListView.as_view(), name='index'),
+    path('food/create', FoodCreateView.as_view(), name='food_create'),
+    path('food/<int:pk>', FoodDetailView.as_view(), name='food_detail'),
+    path('food/<int:pk>/delete', FoodDeleteView.as_view(), name='food_delete'),
+    path('food/<int:pk>/update', FoodUpdateView.as_view(), name='food_update')
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
