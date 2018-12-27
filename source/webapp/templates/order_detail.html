@@ -35,8 +35,8 @@
                 <hr>
                     {% for order_food in order.foods.all %}
                         <p>{{ order_food.food }} - {{ order_food.amount }}шт
-                            <a href="{% url 'order_food_update' order_food.pk%}">редактировать</a> /
-                            <a href="{% url 'order_food_delete' order_food.pk%}">удалить</a>
+                            <a href="{% url 'webapp:order_food_update' order_food.pk%}">редактировать</a> /
+                            <a href="{% url 'webapp:order_food_delete' order_food.pk%}">удалить</a>
                         </p>
                     {% endfor %}
             </div>
@@ -45,10 +45,10 @@
         <p>Работа с заказом.</p>
 
         <p class="lead d-flex d-inline-flex">
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'order_update' order.pk %}" role="button">Редактировать</a>
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'order_cancel' order.pk %}" role="button">Отменить заказ</a>
+        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_update' order.pk %}" role="button">Редактировать</a>
+        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_cancel' order.pk %}" role="button">Отменить заказ</a>
       </p>
-        <a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'order_food_create' order.pk %}" role="button">Добавить блюдо</a>
+        <a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'webapp:order_food_create' order.pk %}" role="button">Добавить блюдо</a>
 
     </div>
 {% endblock %}

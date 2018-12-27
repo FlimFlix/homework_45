@@ -30,7 +30,7 @@ class FoodUpdateView(UpdateView):
     form_class = FoodUpdateForm
 
     def get_success_url(self):
-        return reverse('food_detail', kwargs={'pk': self.object.pk})
+        return reverse('webapp:food_detail', kwargs={'pk': self.object.pk})
 
 
 class FoodCreateView(CreateView):
@@ -39,7 +39,7 @@ class FoodCreateView(CreateView):
     form_class = FoodCreateForm
 
     def get_success_url(self):
-        return reverse('food_detail', kwargs={'pk': self.object.pk})
+        return reverse('webapp:food_detail', kwargs={'pk': self.object.pk})
 
 
 class OrderCreateView(CreateView):
@@ -48,7 +48,7 @@ class OrderCreateView(CreateView):
     form_class = OrderCreateForm
 
     def get_success_url(self):
-        return reverse('order_detail', kwargs={'pk': self.object.pk})
+        return reverse('webapp:order_detail', kwargs={'pk': self.object.pk})
 
 
 class OrderDetailView(DetailView):
@@ -67,7 +67,7 @@ class OrderUpdateView(UpdateView):
     form_class = OrderForm
 
     def get_success_url(self):
-        return reverse('order_detail', kwargs={'pk': self.object.pk})
+        return reverse('webapp:order_detail', kwargs={'pk': self.object.pk})
 
 
 class OrderFoodCreateView(CreateView):
@@ -76,7 +76,7 @@ class OrderFoodCreateView(CreateView):
     template_name = 'order_food_create.html'
 
     def get_success_url(self):
-        return reverse('order_detail', kwargs={'pk': self.object.order.pk})
+        return reverse('webapp:order_detail', kwargs={'pk': self.object.order.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -94,7 +94,7 @@ class OrderFoodUpdateView(UpdateView):
     template_name = 'order_food_update.html'
 
     def get_success_url(self):
-        return reverse('order_detail', kwargs={'pk': self.object.order.pk})
+        return reverse('webapp:order_detail', kwargs={'pk': self.object.order.pk})
 
 
 class OrderFoodDeleteView(DeleteView):
@@ -103,7 +103,7 @@ class OrderFoodDeleteView(DeleteView):
     template_name = 'order_food_delete.html'
 
     def get_success_url(self):
-        return reverse('order_detail', kwargs={'pk': self.object.order.pk})
+        return reverse('webapp:order_detail', kwargs={'pk': self.object.order.pk})
 
 
 def order_cancel_view(request, pk):
@@ -114,4 +114,4 @@ def order_cancel_view(request, pk):
         order.status = 'canceled'
         order.save()
 
-    return redirect('order_detail', pk)
+    return redirect('webapp:order_detail', pk)

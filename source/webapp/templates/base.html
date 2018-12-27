@@ -21,17 +21,23 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav container">
             <li class="nav-item">
-                <a href="{% url 'order_list' %}" class="nav-link">Главная</a>
+                <a href="{% url 'webapp:order_list' %}" class="nav-link">Главная</a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'food_list' %}" class="nav-link">Блюда</a>
+                <a href="{% url 'webapp:food_list' %}" class="nav-link">Блюда</a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'food_create' %}" class="nav-link">Добавить блюдо</a>
+                <a href="{% url 'webapp:food_create' %}" class="nav-link">Добавить блюдо</a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'order_create' %}" class="nav-link">Добавить заказ</a>
+                <a href="{% url 'webapp:order_create' %}" class="nav-link">Добавить заказ</a>
             </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item navbar-text dropdown-menu-right">Привет, {{ user.username }}!</li>
+                <li class="nav-item"><a href="{% url 'webauth:logout' %}" class="nav-link">Выход</a></li>
+            {% else %}
+                <li class="nav-item"><a href="{% url 'webauth:login' %}" class="nav-link">Вход</a></li>
+            {% endif %}
             {% block menu %}{% endblock %}
         </ul>
     </div>

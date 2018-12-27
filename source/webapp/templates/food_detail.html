@@ -7,10 +7,10 @@
     {{ food.description }}
     <ul>
         <li>
-            <a href="{% url 'food_delete' food.pk %}">Удалить</a>
+            <a href="{% url 'webapp:food_delete' food.pk %}">Удалить</a>
         </li>
         <li>
-            <a href="{% url 'food_update' food.pk %}">Редактировать</a>
+            <a href="{% url 'webapp:food_update' food.pk %}">Редактировать</a>
         </li>
     </ul>
 
