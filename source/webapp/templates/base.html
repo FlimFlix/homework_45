@@ -21,10 +21,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav container">
             <li class="nav-item">
-                <a href="{% url 'index' %}" class="nav-link">Главная</a>
+                <a href="{% url 'order_list' %}" class="nav-link">Главная</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'food_list' %}" class="nav-link">Блюда</a>
             </li>
             <li class="nav-item">
                 <a href="{% url 'food_create' %}" class="nav-link">Добавить блюдо</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'order_create' %}" class="nav-link">Добавить заказ</a>
             </li>
             {% block menu %}{% endblock %}
         </ul>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+    {% for order in order_list %}
+
+        <div class="card text-white bg-dark mb-3 m-2" style="max-width: 18rem;">
+          <div class="card-header">
+              <a href="{% url 'order_detail' order.pk %}">Заказ #{{ order.id }}</a>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Клиент: {{ order.contact_name }}</h5>
+            <p class="card-text">Статус: {{ order.get_status_display }}</p>
+          </div>
+        </div>
+    {% endfor %}
+{% endblock %}

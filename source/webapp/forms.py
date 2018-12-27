@@ -14,3 +14,19 @@ class FoodUpdateForm(forms.ModelForm):
         exclude = []
 
 
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        exclude = []
+
+
+class OrderCreateForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        exclude = ['status']
+
+
+class OrderFoodForm(forms.ModelForm):
+    class Meta:
+        model = OrderFood
+        exclude = ['order']

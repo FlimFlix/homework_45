@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Редактировать блюдо{% endblock %}
+
+{% block content %}
+    {# Не выводить форму, если статус связанного заказа "Доставлен" или "Доставляется" #}
+    {% if order.status == 'delivered' or order.status == 'on_way' %}
+        <h2>Заказ уже доставляется или доставлен</h2>
+    {% else %}
+        <form action="{% url 'order_food_delete' orderfood.pk %}" method="post">
+            {% csrf_token %}
+            <input type="radio" value="yes" name="delete"> Да<br>
+            <input type="radio" value="no" name="delete" checked> Нет<br>
+            <input type="submit" value="Подтвердить">
+        </form>
+    {% endif %}
+{% endblock %}
