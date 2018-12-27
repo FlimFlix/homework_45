@@ -1,27 +1,29 @@
 {% extends 'base.html' %}
 {% block title %}Заказ{% endblock %}
 {% block content %}
-    <div class="jumbotron mt-4 bg-success">
-        <h1 class="display-4 text-center">Заказ</h1>
-        <p class="lead">Информация о заказе</p>
-        <div class="row">
-          <div class="col-2">
-              <ul>
-                  <br>
-                  <p>Номер</p>
-                  <p>Имя</p>
-                  <p>Адрес</p>
-                  <br>
-                  <p>Статус</p>
-                  <p>Курьер</p>
-              </ul>
-          </div>
-          <div class="col-6 ">
+<div class="jumbotron mt-4 bg-success">
+    <h1 class="display-4 text-center">Заказ</h1>
+    <p class="lead">Информация о заказе</p>
+    <div class="row">
+        <div class="col-2">
+            <ul>
+                <br>
+                <p>Номер</p>
+                <p>Имя</p>
+                <p>Адрес</p>
+                <br>
+                <p>Статус</p>
+                <p>Оператор</p>
+                <p>Курьер</p>
+            </ul>
+        </div>
+        <div class="col-6 ">
             <ul class="list-group col-12">
                 <li class="list-group-item">{{ order.contact_phone }}</li>
                 <li class="list-group-item">{{ order.contact_name }}</li>
                 <li class="list-group-item">{{ order.delivery_address }}</li>
                 <li class="list-group-item">{{ order.get_status_display }}</li>
+                <li class="list-group-item">{{ order.operator }}</li>
                 <li class="list-group-item">
                     {% if order.courier %}
                         {{ order.courier }}
@@ -30,25 +32,41 @@
                     {% endif %}
                 </li>
             </ul>
-          </div>
-            <div class="col-4 text-center">Блюда
-                <hr>
-                    {% for order_food in order.foods.all %}
-                        <p>{{ order_food.food }} - {{ order_food.amount }}шт
-                            <a href="{% url 'webapp:order_food_update' order_food.pk%}">редактировать</a> /
-                            <a href="{% url 'webapp:order_food_delete' order_food.pk%}">удалить</a>
-                        </p>
-                    {% endfor %}
-            </div>
         </div>
-        <hr class="my-4">
-        <p>Работа с заказом.</p>
-
-        <p class="lead d-flex d-inline-flex">
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_update' order.pk %}" role="button">Редактировать</a>
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_cancel' order.pk %}" role="button">Отменить заказ</a>
-      </p>
-        <a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'webapp:order_food_create' order.pk %}" role="button">Добавить блюдо</a>
-
+        <div class="col-4 text-center">Блюда
+            <hr>
+            {% for order_food in order.foods.all %}
+                <p>{{ order_food.food }} - {{ order_food.amount }}шт
+                    <a href="{% url 'webapp:order_food_update' order_food.pk %}">редактировать</a> /
+                    <a href="{% url 'webapp:order_food_delete' order_food.pk %}">удалить</a>
+                </p>
+            {% endfor %}
+        </div>
     </div>
+    <hr class="my-4">
+    <p>Работа с заказом.</p>
+
+    <p class="lead d-flex d-inline-flex">
+        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_update' order.pk %}" role="button">Редактировать</a>
+        {% if perms.webapp.change_status %}
+            {% if order.status == 'new' %}
+                <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Взять заказ</a>
+                {% elif order.status == 'preparing' %}
+                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Заказ готовится</a>
+                {% elif order.status == 'on_way' %}
+                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Заказ
+                        в пути</a>
+                {% elif order.status == 'delivered' %}
+                    <p class="btn btn-primary btn-lg mr-2" role="button">Заказ доставлен</p>
+            {% endif %}
+            {% if order.status == 'new' or order.status == 'preparing' and perms.webapp.canceled_order %}
+                    <a href="{% url 'webapp:order_cancel' order.pk %}" class="btn btn-primary btn-lg mr-2">Отменить заказ</a>
+            {% elif order.status == 'on_way' or order.status == 'delivered' and perms.webapp.canceled_order %}
+                    <p class="text-danger">Заказ в пути, либо доставлен, отмена невозможна</p>
+            {% endif %}
+        {% endif %}
+    </p>
+    <a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'webapp:order_food_create' order.pk %}"
+       role="button">Добавить блюдо</a>
+</div>
 {% endblock %}

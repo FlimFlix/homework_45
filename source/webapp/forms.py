@@ -5,7 +5,7 @@ from webapp.models import Food, Order, OrderFood
 class FoodCreateForm(forms.ModelForm):
     class Meta:
         model = Food
-        exclude = []
+        exclude = ['']
 
 
 class FoodUpdateForm(forms.ModelForm):
@@ -23,7 +23,7 @@ class OrderForm(forms.ModelForm):
 class OrderCreateForm(forms.ModelForm):
     class Meta:
         model = Order
-        exclude = ['status']
+        exclude = ['status', 'operator', 'courier']
 
 
 class OrderFoodForm(forms.ModelForm):

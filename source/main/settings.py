@@ -124,3 +124,8 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 MEDIA_URL = '/uploads/'
+
+
+from django.urls import reverse_lazy
+
+LOGIN_URL = reverse_lazy('webauth:login')

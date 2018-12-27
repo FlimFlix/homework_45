@@ -2,8 +2,7 @@
 {% block title %}Главная{% endblock %}
 {% block content %}
     {% for order in order_list %}
-
-        <div class="card text-white bg-dark mb-3 m-2" style="max-width: 18rem;">
+    <div class="card text-white bg-dark  m-2 d-flex" style="max-width: 18rem;">
           <div class="card-header">
               <a href="{% url 'webapp:order_detail' order.pk %}">Заказ #{{ order.id }}</a>
           </div>

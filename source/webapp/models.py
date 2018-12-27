@@ -6,6 +6,12 @@ class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='employee', verbose_name='Пользователь')
     phone = models.CharField(max_length=50, verbose_name='Телефон')
 
+    class Meta:
+        permissions = [
+            ('change_status', 'Изменение заказа'),
+            ('canceled_order', 'Отмена заказа')
+        ]
+
     def __str__(self):
         return self.user.get_full_name()
 
