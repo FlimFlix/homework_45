@@ -1,8 +1,8 @@
 from django.urls import path
 from webapp.views import FoodCreateView, FoodDetailView, FoodListView, FoodDeleteView, FoodUpdateView, \
-    OrderCreateView, OrderListView, OrderDetailView, OrderUpdateView, OrderFoodCreateView, order_cancel_view, \
-    OrderFoodUpdateView, OrderFoodDeleteView, order_deliver_view
-
+    OrderCreateView, OrderListView, OrderDetailView, OrderUpdateView, order_cancel_view, \
+    order_deliver_view, \
+    OrderFoodAjaxCreateView, OrderFoodAjaxUpdateView, OrderFoodDeleteView
 app_name = 'webapp'
 
 urlpatterns = [
@@ -10,7 +10,6 @@ urlpatterns = [
     path('order/<int:pk>', OrderDetailView.as_view(), name='order_detail'),
     path('order/<int:pk>/cancel', order_cancel_view, name='order_cancel'),
     path('order/<int:pk>/deliver', order_deliver_view, name='order_deliver'),
-    path('order/<int:pk>/foods', OrderFoodCreateView.as_view(), name='order_food_create'),
     path('order/<int:pk>/update', OrderUpdateView.as_view(), name='order_update'),
     path('foods', FoodListView.as_view(), name='food_list'),
     path('food/create', FoodCreateView.as_view(), name='food_create'),
@@ -18,6 +17,8 @@ urlpatterns = [
     path('food/<int:pk>/delete', FoodDeleteView.as_view(), name='food_delete'),
     path('food/<int:pk>/update', FoodUpdateView.as_view(), name='food_update'),
     path('order/create', OrderCreateView.as_view(), name='order_create'),
-    path('order/<int:pk>/order_food_update', OrderFoodUpdateView.as_view(), name='order_food_update'),
-    path('order/<int:pk>/order_food_delete', OrderFoodDeleteView.as_view(), name='order_food_delete'),
+    path('order/<int:pk>/food/create', OrderFoodAjaxCreateView.as_view(), name='order_food_create'),
+    path('order_food/<int:pk>/update', OrderFoodAjaxUpdateView.as_view(), name='order_food_update'),
+    path('order/<int:pk>/order_food_delete', OrderFoodDeleteView.as_view(), name='order_food_delete')
+
 ]

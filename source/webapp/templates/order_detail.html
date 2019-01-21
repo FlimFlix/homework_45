@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Заказ{% endblock %}
 {% block content %}
-<div class="jumbotron mt-4 bg-success">
-    <h1 class="display-4 text-center">Заказ</h1>
-    <p class="lead">Информация о заказе</p>
+    <div class="jumbotron mt-4 bg-info">
+    <h1 class="display-4 text-center">Информация о заказе</h1>
     <div class="row">
         <div class="col-2">
             <ul>
@@ -21,52 +20,252 @@
             <ul class="list-group col-12">
                 <li class="list-group-item">{{ order.contact_phone }}</li>
                 <li class="list-group-item">{{ order.contact_name }}</li>
-                <li class="list-group-item">{{ order.delivery_address }}</li>
+                <li class="list-group-item">{{ order.delivery_address|default_if_none:'Адрес не указан' }}</li>
                 <li class="list-group-item">{{ order.get_status_display }}</li>
                 <li class="list-group-item">{{ order.operator }}</li>
-                <li class="list-group-item">
-                    {% if order.courier %}
-                        {{ order.courier }}
-                    {% else %}
-                        Курьер еще не назначен
-                    {% endif %}
-                </li>
+                <li class="list-group-item">{{ order.courier|default_if_none:'Курьер еще не назначен' }}</li>
             </ul>
         </div>
         <div class="col-4 text-center">Блюда
             <hr>
-            {% for order_food in order.foods.all %}
-                <p>{{ order_food.food }} - {{ order_food.amount }}шт
-                    <a href="{% url 'webapp:order_food_update' order_food.pk %}">редактировать</a> /
-                    <a href="{% url 'webapp:order_food_delete' order_food.pk %}">удалить</a>
-                </p>
-            {% endfor %}
+            <ul class="list-group" id="order_food_list">
+                {% for order_food in order.foods.all %}
+                    <li id="order_food_{{ order_food.pk }}">
+                        <span id="order_food_name_{{ order_food.pk }}"
+                              data-food_pk="{{ order_food.food.pk }}">{{ order_food.food.name }}</span> -
+                        <span id="order_food_amount_{{ order_food.pk }}">{{ order_food.amount }}</span> шт
+                        (<a class="edit_link" href="{% url 'webapp:order_food_update' order_food.pk %}"
+                            data-pk="{{ order_food.pk }}">редактировать</a> /
+                        <a class="delete_link" href="{% url 'webapp:order_food_delete' order_food.pk %}"
+                           data-pk="{{ order_food.pk }}" data-token="{{ csrf_token }}">удалить</a>)
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
-    <hr class="my-4">
-    <p>Работа с заказом.</p>
+        <hr class="my-4">
+        <p>Работа с заказом</p>
 
-    <p class="lead d-flex d-inline-flex">
-        <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_update' order.pk %}" role="button">Редактировать</a>
-        {% if perms.webapp.change_status %}
-            {% if order.status == 'new' %}
-                <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Взять заказ</a>
+        <p class="lead d-flex d-inline-flex">
+            <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_update' order.pk %}" role="button">Редактировать</a>
+            {% if perms.webapp.change_status %}
+                {% if order.status == 'new' %}
+                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}"
+                       role="button">Взять заказ</a>
                 {% elif order.status == 'preparing' %}
-                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Заказ готовится</a>
+                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}"
+                       role="button">Заказ готовится</a>
                 {% elif order.status == 'on_way' %}
-                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}" role="button">Заказ
+                    <a class="btn btn-primary btn-lg mr-2" href="{% url 'webapp:order_deliver' order.pk %}"
+                       role="button">Заказ
                         в пути</a>
                 {% elif order.status == 'delivered' %}
-                    <p class="btn btn-primary btn-lg mr-2" role="button">Заказ доставлен</p>
-            {% endif %}
-            {% if order.status == 'new' or order.status == 'preparing' and perms.webapp.canceled_order %}
-                    <a href="{% url 'webapp:order_cancel' order.pk %}" class="btn btn-primary btn-lg mr-2">Отменить заказ</a>
-            {% elif order.status == 'on_way' or order.status == 'delivered' and perms.webapp.canceled_order %}
+                    <a class="btn btn-primary btn-lg mr-2 text-body" role="button">Заказ доставлен</a>
+                {% endif %}
+                {% if order.status == 'new' or order.status == 'preparing' and perms.webapp.canceled_order %}
+                    <a href="{% url 'webapp:order_cancel' order.pk %}" class="btn btn-primary btn-lg mr-2">Отменить
+                        заказ</a>
+                {% elif order.status == 'on_way' or order.status == 'delivered' and perms.webapp.canceled_order %}
                     <p class="text-danger">Заказ в пути, либо доставлен, отмена невозможна</p>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </p>
-    <a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'webapp:order_food_create' order.pk %}"
-       role="button">Добавить блюдо</a>
-</div>
+        <p><a class="btn btn-primary btn-lg mr-2 float-right" href="{% url 'webapp:order_food_create' order.pk %}"
+              role="button" id="order_food_add_link">Добавить блюдо</a></p>
+        </p>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="food_edit_modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                        <form id="food_form" action="{% url 'webapp:order_food_update' order.pk %}" method="POST">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="food_submit">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function onCreateSuccess(response, status) {
+            console.log(response);
+            console.log(status);
+
+            let newFoodLi = $('<li></li>');
+
+            let foodNameSpan = $('<span></span>')
+                .attr('id', 'order_food_name_' + response.pk)
+                .data('food_pk', response.food_pk)
+                .text(response.food_name)
+            let foodAmountSpan = $('<span></span>')
+                .attr('id', 'order_food_amount_' + response.pk)
+                .text(response.amount);
+            let editLink = $('<a></a>')
+                .addClass('edit_link')
+                .attr('href', response.edit_url)
+                .data('pk', response.pk)
+                .text('Редактировать')
+                .click(onOrderFoodUpdate);
+            let deleteLink = $('<a></a>')
+                .attr('href', response.delete_url)
+                .text('Удалить')
+                .data('pk', response.pk)
+                .click(onOrderFoodDelete);
+
+            newFoodLi
+                .attr('id', 'order_food_' + response.pk)
+                .append(foodNameSpan)
+                .append(': ')
+                .append(foodAmountSpan)
+                .append(' шт. (')
+                .append(editLink)
+                .append(' / ')
+                .append(deleteLink)
+                .append(')');
+
+            $('#order_food_list').append(newFoodLi);
+
+            $('#food_edit_modal').modal('hide');
+        }
+
+
+        function onUpdateSuccess(response, status) {
+            console.log(response);
+            console.log(status);
+
+            let pk = response['pk'];
+            let food_name_span = $('#order_food_name_' + pk);
+            food_name_span.text(response.food_name);
+            food_name_span.data('food_pk', response.food_pk);
+            $('#order_food_amount_' + pk).text(response.amount);
+
+            $('#food_edit_modal').modal('hide');
+        }
+
+
+        function onFormSubmitError(response, status) {
+            console.log(response);
+            console.log(status);
+
+            if (response.errors) {
+                $('#food_form_errors').text(response.errors.toString());
+            }
+        }
+
+
+        function orderFoodFormSubmit(success) {
+            let url = $('#food_form').attr('action');
+
+            let data = {
+                food: $('#id_food').val(),
+                amount: $('#id_amount').val(),
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+            };
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: data,
+                success: success,
+                error: onFormSubmitError
+            });
+        }
+
+
+        function onOrderFoodCreate(event) {
+            event.preventDefault();
+
+            $("#food_edit_modal .modal-title").text('Добавить блюдо');
+            $("#food_submit").text('Добавить');
+
+            let foodForm = $('#food_form');
+            foodForm.attr('action', $(this).attr('href'));
+
+            $('#id_food').val('');
+            $('#id_amount').val('');
+
+            foodForm.off('submit');
+
+            foodForm.on('submit', function (e) {
+                e.preventDefault();
+
+                orderFoodFormSubmit(onCreateSuccess);
+            });
+
+            $('#food_edit_modal').modal('show');
+        }
+
+
+        function onOrderFoodUpdate(event) {
+            event.preventDefault();
+
+            $("#food_edit_modal .modal-title").text('Изменить блюдо');
+            $("#food_submit").text('Изменить');
+
+            let foodForm = $('#food_form');
+            foodForm.attr('action', $(this).attr('href'));
+
+            let foodPk = $(this).data('pk');
+            let foodName = $('#order_food_name_' + foodPk);  // '#order_food_name_1'
+            let foodAmount = $('#order_food_amount_' + foodPk);  // '#order_food_amount_1'
+
+            $('#id_food').val(foodName.data('food_pk'));
+            $('#id_amount').val(foodAmount.text());
+
+            foodForm.off('submit');
+
+            foodForm.submit(function (event) {
+                event.preventDefault();
+
+                orderFoodFormSubmit(onUpdateSuccess);
+            });
+
+            $('#food_edit_modal').modal('show');
+        }
+            function onOrderFoodDelete(e) {
+            e.preventDefault();
+            let url = $(this).attr('href');
+            let foodPk = $(this).data('pk');
+            let token = $(this).data('token');
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                data: {
+                    foodPk: foodPk,
+                },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", token)
+                } ,
+                success: function (json) {
+                    $('#order_food_' + foodPk).remove()
+                },
+                error: function (response, status) {
+                    console.log(response);
+                    console.log(status);
+                }
+            })
+
+        }
+
+        window.addEventListener('load', function () {
+            $('#food_submit').on('click', function (e) {
+                $('#food_form').submit();
+            });
+
+            $("#order_food_add_link").click(onOrderFoodCreate);
+            $('#order_food_list .edit_link').click(onOrderFoodUpdate);
+            $('#order_food_list .delete_link').click(onOrderFoodDelete);
+        });
+    </script>
 {% endblock %}
